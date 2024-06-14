@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: cart-service
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      server-addr: nacos.lan.luoxianjun.com
+      config:
+        file-extension: yaml
+        group: DEFAULT_GROUP
+        shared-configs:
+          - data-id: share-jdbc.yaml
+          - data-id: share-log.yaml
+          - data-id: share-swagger.yaml
+          - data-id: share-feign.yaml
+
