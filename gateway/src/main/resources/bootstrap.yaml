@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: gateway
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      server-addr: nacos.lan.luoxianjun.com
+      config:
+        file-extension: yaml
+        group: DEFAULT_GROUP
+        shared-configs:
+          - data-id: share-log.yaml
+
+
