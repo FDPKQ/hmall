@@ -6,3 +6,14 @@ hm:
     package: com.hmall.cart.controller
   db:
     database: hm-cart
+
+feign:
+  sentinel:
+    enabled: true
+
+spring:
+  cloud:
+    sentinel:
+      transport:
+        dashboard: 10.21.158.59:8090
+      http-method-specify: true
