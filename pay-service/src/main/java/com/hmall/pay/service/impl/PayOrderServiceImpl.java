@@ -50,32 +50,52 @@ public class PayOrderServiceImpl extends ServiceImpl<PayOrderMapper, PayOrder> i
         return payOrder.getId().toString();
     }
 
+    /**
+     * 尝试使用余额支付订单。
+     * 此方法首先检查支付单的状态，确保订单尚未支付，然后尝试从用户余额中扣除支付金额，
+     * 并更新支付单为支付成功状态。如果更新支付单状态失败，则抛出异常。
+     * 最后，通过RabbitMQ发送消息通知相关系统订单支付成功。
+     *
+     * @param payOrderFormDTO 包含支付单ID和用户密码的DTO，用于查询支付单和进行余额扣除。
+     * @throws BizIllegalException 如果支付单状态不为待支付，或者更新支付单状态失败，则抛出此异常。
+     */
     @Override
     @Transactional
     public void tryPayOrderByBalance(PayOrderFormDTO payOrderFormDTO) {
-        // 1.查询支付单
+        // 根据支付单ID查询支付单详情
         PayOrder po = getById(payOrderFormDTO.getId());
-        // 2.判断状态
+
+        // 检查支付单状态，确保订单尚未支付
         if (!PayStatus.WAIT_BUYER_PAY.equalsValue(po.getStatus())) {
             // 订单不是未支付，状态异常
             throw new BizIllegalException("交易已支付或关闭！");
         }
-        // 3.尝试扣减余额
+
+        // 尝试从用户余额中扣除支付金额
         userClient.deductMoney(payOrderFormDTO.getPw(), po.getAmount());
-        // 4.修改支付单状态
+
+        // 更新支付单状态为支付成功
         boolean success = markPayOrderSuccess(payOrderFormDTO.getId(), LocalDateTime.now());
         if (!success) {
             throw new BizIllegalException("交易已支付或关闭！");
         }
-        // 5.修改订单状态
-//        tradeClient.markOrderPaySuccess(po.getBizOrderNo());
 
+        // 通过RabbitMQ发送消息，通知相关系统订单支付成功
         try {
             rabbitTemplate.convertAndSend("pay.direct", "pay.success", po.getBizOrderNo());
         } catch (Exception e) {
             log.error("rabbitMQ send error {}", e.getMessage());
         }
     }
+
+    @Override
+    public void updateOrderStatusByOrderId(Long id, Integer status) {
+        lambdaUpdate()
+                .set(PayOrder::getStatus, status)
+                .eq(PayOrder::getBizOrderNo, id)
+                .update();
+    }
+
 
     public boolean markPayOrderSuccess(Long id, LocalDateTime successTime) {
         return lambdaUpdate()

@@ -15,4 +15,5 @@ spring:
           - data-id: share-swagger.yaml
           - data-id: share-feign.yaml
           - data-id: shared-seata.yaml
+          - data-id: share-rabbitMQ.yaml
 

@@ -12,10 +12,3 @@ feign:
   sentinel:
     enabled: true
 
-spring:
-  rabbitmq:
-    host: 10.21.158.59 # 你的虚拟机IP
-    port: 5672 # 端口
-    virtual-host: /hmall # 虚拟主机
-    username: hmall # 用户名
-    password: passw0rd # 密码

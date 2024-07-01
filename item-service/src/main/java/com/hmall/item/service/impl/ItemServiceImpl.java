@@ -23,7 +23,7 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements II
     @Transactional
     public void deductStock(List<OrderDetailDTO> items) {
         String sqlStatement = "com.hmall.item.mapper.ItemMapper.updateStock";
-        boolean r = false;
+        boolean r;
         try {
             r = executeBatch(items, (sqlSession, entity) -> sqlSession.update(sqlStatement, entity));
         } catch (Exception e) {
@@ -37,5 +37,17 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements II
     @Override
     public List<ItemDTO> queryItemByIds(Collection<Long> ids) {
         return BeanUtils.copyList(listByIds(ids), ItemDTO.class);
+    }
+
+    @Override
+    @Transactional
+    public void restoreStock(List<OrderDetailDTO> orderDetailDTOs) {
+        orderDetailDTOs.forEach(od -> {
+            Item item = lambdaQuery().eq(Item::getId, od.getItemId()).one();
+            lambdaUpdate()
+                    .set(Item::getStock, item.getStock() + od.getNum())
+                    .eq(Item::getId, od.getItemId())
+                    .update();
+        });
     }
 }

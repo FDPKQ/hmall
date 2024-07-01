@@ -11,5 +11,8 @@ import java.util.List;
 
 public interface IItemService extends IService<Item> {
     void deductStock(List<OrderDetailDTO> items);
+
     List<ItemDTO> queryItemByIds(Collection<Long> ids);
+
+    void restoreStock(List<OrderDetailDTO> orderDetailDTOs);
 }

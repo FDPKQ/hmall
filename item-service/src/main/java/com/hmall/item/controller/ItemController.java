@@ -83,4 +83,9 @@ public class ItemController {
     public void deductStock(@RequestBody List<OrderDetailDTO> items) {
         itemService.deductStock(items);
     }
+
+    @PutMapping("/stock/restore")
+    public void restoreStock(@RequestBody List<OrderDetailDTO> orderDetailDTOs) {
+        itemService.restoreStock(orderDetailDTOs);
+    }
 }

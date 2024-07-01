@@ -5,6 +5,7 @@ public class UserContext {
 
     /**
      * 保存当前登录用户信息到ThreadLocal
+     *
      * @param userId 用户id
      */
     public static void setUser(Long userId) {
@@ -13,6 +14,7 @@ public class UserContext {
 
     /**
      * 获取当前登录用户信息
+     *
      * @return 用户id
      */
     public static Long getUser() {
@@ -22,7 +24,7 @@ public class UserContext {
     /**
      * 移除当前登录用户信息
      */
-    public static void removeUser(){
+    public static void removeUser() {
         tl.remove();
     }
 }
