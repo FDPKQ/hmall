@@ -34,6 +34,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.sort.SortBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -129,10 +130,14 @@ public class SearchController {
                 .size(query.getPageSize());
 
         // 设置搜索结果的排序条件
-        List<OrderItem> orders = query.toMpPage("updateTime", false).orders();
+        List<OrderItem> orders = query.toMpPage().orders();
         for (OrderItem orderItem : orders) {
             searchRequest.source().sort(orderItem.getColumn(), orderItem.isAsc() ? SortOrder.ASC : SortOrder.DESC);
         }
+
+        // 在所有自定义排序条件后，追加默认的得分排序（降序）
+        searchRequest.source()
+                .sort(SortBuilders.scoreSort().order(SortOrder.DESC));
 
         // 执行搜索请求
         SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
